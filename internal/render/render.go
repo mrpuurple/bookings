@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/justinas/nosurf"
-	"github.com/mrpuurple/bookings/pkg/config"
-	"github.com/mrpuurple/bookings/pkg/models"
+	"github.com/mrpuurple/bookings/internal/config"
+	"github.com/mrpuurple/bookings/internal/models"
 )
 
 // var functions = template.FuncMap{

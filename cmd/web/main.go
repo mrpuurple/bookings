@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/mrpuurple/bookings/pkg/config"
-	"github.com/mrpuurple/bookings/pkg/handlers"
-	"github.com/mrpuurple/bookings/pkg/render"
+	"github.com/mrpuurple/bookings/internal/config"
+	"github.com/mrpuurple/bookings/internal/handlers"
+	"github.com/mrpuurple/bookings/internal/render"
 )
 
 const portNumber = ":8888"

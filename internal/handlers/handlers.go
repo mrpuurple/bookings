@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mrpuurple/bookings/pkg/config"
-	"github.com/mrpuurple/bookings/pkg/models"
-	"github.com/mrpuurple/bookings/pkg/render"
+	"github.com/mrpuurple/bookings/internal/config"
+	"github.com/mrpuurple/bookings/internal/models"
+	"github.com/mrpuurple/bookings/internal/render"
 )
 
 // Repo the repository used by the handlers
