@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/mrpuurple/bookings/internal/config"
+	"github.com/mrpuurple/bookings/internal/forms"
 	"github.com/mrpuurple/bookings/internal/models"
 	"github.com/mrpuurple/bookings/internal/render"
 )
@@ -51,7 +52,14 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 
 // Reservation renders the make a reservation page and display form
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{})
+	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// PostReservation handles tho posting of a reservation form
+func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+	
 }
 
 // Generals is the generals-quarters page handler
