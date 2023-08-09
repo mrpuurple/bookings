@@ -6,10 +6,13 @@ import (
 	"net/http"
 
 	"github.com/mrpuurple/bookings/internal/config"
+	"github.com/mrpuurple/bookings/internal/driver"
 	"github.com/mrpuurple/bookings/internal/forms"
 	"github.com/mrpuurple/bookings/internal/helpers"
 	"github.com/mrpuurple/bookings/internal/models"
 	"github.com/mrpuurple/bookings/internal/render"
+	"github.com/mrpuurple/bookings/internal/repository"
+	"github.com/mrpuurple/bookings/internal/repository/dbrepo"
 )
 
 // Repo the repository used by the handlers
@@ -18,12 +21,14 @@ var Repo *Repository
 // Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
+	DB repository.DatabaseRepo
 }
 
 // NewRepo creates a new repository
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB: dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
