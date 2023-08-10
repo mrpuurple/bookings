@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/mrpuurple/bookings/internal/config"
 	"github.com/mrpuurple/bookings/internal/driver"
@@ -21,14 +23,14 @@ var Repo *Repository
 // Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
-	DB repository.DatabaseRepo
+	DB  repository.DatabaseRepo
 }
 
 // NewRepo creates a new repository
 func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
-		DB: dbrepo.NewPostgresRepo(db.SQL, a),
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -55,7 +57,7 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 // Reservation renders the make a reservation page and display form
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	var emptyReservation models.Reservation
-	data :=  make(map[string]interface{})
+	data := make(map[string]interface{})
 	data["reservation"] = emptyReservation
 
 	render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
@@ -72,11 +74,36 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+
+	// 01/02 03:04:05PM '06 -0700
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, sd)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	endDate, err := time.Parse(layout, ed)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Email:     r.Form.Get("email"),
 		Phone:     r.Form.Get("phone"),
+		StartDate: startDate,
+		EndDate:   endDate,
+		RoomID:    roomID,
 	}
 
 	form := forms.New(r.PostForm)
@@ -93,6 +120,26 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 			Form: form,
 			Data: data,
 		})
+		return
+	}
+
+	newReservationID, err := m.DB.InsertReservation(reservation)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	restriction := models.RoomRestriction{
+		StartDate:      startDate,
+		EndDate:        endDate,
+		RoomID:         roomID,
+		ReservationID:  newReservationID,
+		RestrictionsID: 1,
+	}
+
+	err = m.DB.InsertRoomRestriction(restriction)
+	if err != nil {
+		helpers.ServerError(w, err)
 		return
 	}
 
@@ -155,7 +202,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	}
 
 	m.App.Session.Remove(r.Context(), "reservation")
-	
+
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
 
