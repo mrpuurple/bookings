@@ -57,7 +57,7 @@ func (m *postgresDBRepo) InsertRoomRestriction(r models.RoomRestriction) error {
 		r.ReservationID,
 		time.Now(),
 		time.Now(),
-		r.RestrictionsID,
+		r.RestrictionID,
 	)
 
 	if err != nil {
